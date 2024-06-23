@@ -16,8 +16,7 @@ class Dataset():
             dataPoints = []
 
             imageName = image.find('imageName').text
-            cvImage = cv2.imread(self.folderName + imageName)
-            sample["image"] = torch.tensor(cvImage)
+            sample["image"] = self.normalize(self.folderName + imageName)
 
             
             resolution = image.find('resolution')
@@ -45,6 +44,13 @@ class Dataset():
             sample["dataPoints"] = dataPoints
             self.dataset.append(sample)
     
+    def normalize(self, filePath: str):        
+        cvImage = cv2.imread(filePath)
+        cvImage = cv2.cvtColor(cvImage, cv2.COLOR_BGR2RGB)
+        cvImage = torch.tensor(cvImage, dtype=torch.float32).permute(2, 0, 1) / 255.0
+
+        return cvImage
+    
     def __len__(self):
         return len(self.dataset)
 
@@ -53,4 +59,4 @@ class Dataset():
 
 if __name__ == "__main__":
     dataset = Dataset('SceneTrialTest/words.xml')
-    dataset[0]
+    print(dataset[0])
