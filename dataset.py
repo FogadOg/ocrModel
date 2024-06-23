@@ -1,14 +1,15 @@
 import xml.etree.ElementTree as ET
 import cv2
 import torch
-from tokinizer import Tokenizer
+from tokenizer import Tokenizer
 
 class Dataset():
-    def __init__(self, filePath: str) -> None:
+    def __init__(self, filePath: str, targetSize=(640, 480)) -> None:
         self.dataset = []
         self.tokenizer = Tokenizer(maxSquenceLength=1)
         self.folderName = "SceneTrialTest/"
         self.filePath = filePath
+        self.targetSize = targetSize
 
         tree = ET.parse(self.filePath)
         root = tree.getroot()
@@ -20,7 +21,6 @@ class Dataset():
             imageName = image.find('imageName').text
             sample["image"] = self.normalize(self.folderName + imageName)
 
-            
             resolution = image.find('resolution')
             resolutionX = resolution.attrib['x']
             resolutionY = resolution.attrib['y']
@@ -28,7 +28,6 @@ class Dataset():
             sample["resolutionX"] = resolutionX
             sample["resolutionY"] = resolutionY
 
-            
             taggedRectangles = image.find('taggedRectangles')
             for rect in taggedRectangles.findall('taggedRectangle'):
                 dataPoint = dict()
@@ -52,6 +51,7 @@ class Dataset():
     def normalize(self, filePath: str):        
         cvImage = cv2.imread(filePath)
         cvImage = cv2.cvtColor(cvImage, cv2.COLOR_BGR2RGB)
+        cvImage = cv2.resize(cvImage, self.targetSize)
         cvImage = torch.tensor(cvImage, dtype=torch.float32).permute(2, 0, 1) / 255.0
 
         return cvImage
