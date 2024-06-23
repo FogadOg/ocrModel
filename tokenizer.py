@@ -4,7 +4,7 @@ parentDir = os.path.abspath(os.path.join(currentDir, '../../'))
 sys.path.append(parentDir)
 
 import torch
-from tokinizerUtil import TokenizerDatasetUtils
+from tokenizerUtil import TokenizerDatasetUtils
 
 class Tokenizer(TokenizerDatasetUtils):
   def __init__(self, maxDictLen=100000, maxSquenceLength=700):
