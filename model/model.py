@@ -1,34 +1,42 @@
-from torch import nn
 import torch
-import torch.nn.functional as F
-
-
+import torch.nn as nn
 
 class Model(nn.Module):
-    def __init__(self, numClasses, maxBoxes = 20):
-        super().__init__()
+    def __init__(self, numClasses, maxBoxes=20):
+        super(Model, self).__init__()
         self.numClasses = numClasses
         self.maxBoxes = maxBoxes
+        self.sequential = nn.Sequential(
+            nn.Conv2d(3, 16, 3, padding=1),
+            nn.MaxPool2d(2, 2),
+            nn.ReLU(),
 
-        self.numDataPoints = 5
+            nn.Conv2d(16, 16, 3, padding=1),
+            nn.MaxPool2d(2, 2),
+            nn.ReLU(),
 
-        self.conv1 = nn.Conv2d(3, 16, 3, padding=1)
-        self.conv2 = nn.Conv2d(16, 32, 3, padding=1)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(32 * 56 * 56, 512)
+            nn.Conv2d(16, 16, 3, padding=1),
+            nn.MaxPool2d(2, 2),
+            nn.ReLU(),
+
+            nn.Conv2d(16, 32, 3, padding=1),
+            nn.MaxPool2d(2, 2),
+            nn.ReLU(),
+        )
+
         
-        self.fcBbox = nn.Linear(512, self.maxBoxes * self.numDataPoints)
+        self.fcBbox = nn.Linear(4800, self.maxBoxes * 5)
 
     def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 32 * 56 * 56)
-        x = F.relu(self.fc1(x))
+        x = self.sequential(x)
         
-        
-        bboxOutput = self.fcBbox(x).view(-1, self.maxBoxes, self.numDataPoints)
-        
-        return classOutput, bboxOutput
+        x = x.view(x.size(0), -1)
+
+        bboxOutput = self.fcBbox(x).view(-1, self.maxBoxes, 5)
+
+        return bboxOutput
+
+
 
 
 
