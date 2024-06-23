@@ -16,7 +16,8 @@ class Dataset():
             dataPoints = []
 
             imageName = image.find('imageName').text
-            sample["image"] = cv2.imread(self.folderName + imageName)
+            cvImage = cv2.imread(self.folderName + imageName)
+            sample["image"] = torch.tensor(cvImage)
             
             taggedRectangles = image.find('taggedRectangles')
             for rect in taggedRectangles.findall('taggedRectangle'):
@@ -36,4 +37,4 @@ class Dataset():
 
 if __name__ == "__main__":
     dataset = Dataset('SceneTrialTest/words.xml')
-    dataset.render_rectangles()
+    print(dataset.dataset[0])
