@@ -16,13 +16,16 @@ class Tokenizer(TokenizerDatasetUtils):
 
     sentanceList = sentance.split(" ")
     for word in sentanceList:
-      if len(encodedSentance)>=self.maxSquenceLength:
+      if len(encodedSentance) > self.maxSquenceLength:
         break
 
       if word in self.tokinizerDict.keys():
         encodedSentance.append(self.tokinizerDict[word])
-      elif self.maxDictLen>len(self.tokinizerDict):
-        self.tokinizerDict[word]=len(self.tokinizerDict)
+
+      elif self.maxDictLen > len(self.tokinizerDict):
+        self.tokinizerDict[word] = len(self.tokinizerDict)
+        encodedSentance.append(self.tokinizerDict[word])
+        
       else:
         encodedSentance.append(self.tokinizerDict["UNK"])
 
