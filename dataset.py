@@ -18,6 +18,15 @@ class Dataset():
             imageName = image.find('imageName').text
             cvImage = cv2.imread(self.folderName + imageName)
             sample["image"] = torch.tensor(cvImage)
+
+            
+            resolution = image.find('resolution')
+            resolutionX = resolution.attrib['x']
+            resolutionY = resolution.attrib['y']
+
+            sample["resolutionX"] = resolutionX
+            sample["resolutionY"] = resolutionY
+
             
             taggedRectangles = image.find('taggedRectangles')
             for rect in taggedRectangles.findall('taggedRectangle'):
@@ -32,6 +41,7 @@ class Dataset():
                 dataPoint["tag"] = rect.find('tag').text
                 
                 dataPoints.append(dataPoint)
+                
             sample["dataPoints"] = dataPoints
             self.dataset.append(sample)
     
