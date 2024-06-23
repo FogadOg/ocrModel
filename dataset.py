@@ -34,7 +34,13 @@ class Dataset():
                 dataPoints.append(dataPoint)
             sample["dataPoints"] = dataPoints
             self.dataset.append(sample)
+    
+    def __len__(self):
+        return len(dataset)
+
+    def __getitem__(self, idx):
+        return self.dataset[idx]["image"], self.dataset[idx]["dataPoints"]
 
 if __name__ == "__main__":
     dataset = Dataset('SceneTrialTest/words.xml')
-    print(dataset.dataset[0])
+    dataset[0]
