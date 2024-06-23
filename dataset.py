@@ -1,10 +1,12 @@
 import xml.etree.ElementTree as ET
 import cv2
 import torch
+from tokinizer import Tokenizer
 
 class Dataset():
     def __init__(self, filePath: str) -> None:
         self.dataset = []
+        self.tokenizer = Tokenizer(maxSquenceLength=1)
         self.folderName = "SceneTrialTest/"
         self.filePath = filePath
 
@@ -38,6 +40,9 @@ class Dataset():
                 dataPoint["rotation"] = float(rect.attrib['rotation'])
                 dataPoint["userName"] = rect.attrib['userName']
                 dataPoint["tag"] = rect.find('tag').text
+
+                token = self.tokenizer.encode(rect.find('tag').text)[0]
+                dataPoint["token"] = token
                 
                 dataPoints.append(dataPoint)
                 
