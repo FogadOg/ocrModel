@@ -16,29 +16,24 @@ class Dataset():
             dataPoints = []
 
             imageName = image.find('imageName').text
-            sample["image"] = cv2.imread(self.folderName+imageName) 
+            sample["image"] = cv2.imread(self.folderName + imageName)
             
             taggedRectangles = image.find('taggedRectangles')
             for rect in taggedRectangles.findall('taggedRectangle'):
                 dataPoint = dict()
-                dataPoint["x"] = rect.attrib['x']
-                dataPoint["y"] = rect.attrib['y']
-                dataPoint["width"] = rect.attrib['width']
-                dataPoint["height"] = rect.attrib['height']
-                dataPoint["offset"] = rect.attrib['offset']
-                dataPoint["rotation"] = rect.attrib['rotation']
+                dataPoint["x"] = float(rect.attrib['x'])
+                dataPoint["y"] = float(rect.attrib['y'])
+                dataPoint["width"] = float(rect.attrib['width'])
+                dataPoint["height"] = float(rect.attrib['height'])
+                dataPoint["offset"] = float(rect.attrib['offset'])
+                dataPoint["rotation"] = float(rect.attrib['rotation'])
                 dataPoint["userName"] = rect.attrib['userName']
                 dataPoint["tag"] = rect.find('tag').text
                 
                 dataPoints.append(dataPoint)
             sample["dataPoints"] = dataPoints
             self.dataset.append(sample)
-    
-        
 
-        
 if __name__ == "__main__":
     dataset = Dataset('SceneTrialTest/words.xml')
-
-
-
+    dataset.render_rectangles()
