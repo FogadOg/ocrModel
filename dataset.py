@@ -46,7 +46,7 @@ class Dataset():
             self.dataset.append(sample)
     
     def __len__(self):
-        return len(dataset)
+        return len(self.dataset)
 
     def __getitem__(self, idx):
         return self.dataset[idx]["image"], self.dataset[idx]["dataPoints"]
