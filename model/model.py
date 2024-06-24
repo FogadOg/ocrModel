@@ -24,37 +24,30 @@ class Model(nn.Module):
             nn.ReLU(),
         )
 
-        
-        self.fcBbox = nn.Linear(4800, self.maxBoxes * 5)
+        self.fcBbox = nn.Linear(32 * 40 * 30, self.maxBoxes * 4)
+        self.fcClass = nn.Linear(32 * 40 * 30, self.maxBoxes * numClasses)
 
-    def forward(self, x):
+    def forward(self, x: torch.tensor):
+        x = x.unsqueeze(0)
         x = self.sequential(x)
-        
         x = x.view(x.size(0), -1)
 
-        bboxOutput = self.fcBbox(x).view(-1, self.maxBoxes, 5)
+        bboxOutput = self.fcBbox(x).view(-1, self.maxBoxes, 4)
+        classOutput = self.fcClass(x).view(-1, self.maxBoxes, self.numClasses)
 
-        return bboxOutput
+        classIndices = torch.argmax(classOutput, dim=2, keepdim=True).float()
 
+        output = torch.cat((bboxOutput, classIndices), dim=2)
 
-
-
-
-
+        return output.squeeze(0)
 
 if __name__ == "__main__":
-    model = Model(numClasses=300)
+    model = Model(numClasses=769)
 
-    # Create a sample input tensor
-    sample_input = torch.randn(1, 3, 224, 224)
+    sample_input = torch.randn(3, 640, 480)
 
-    # Pass the sample input through the model
-    classOutput, bboxOutput = model(sample_input)
+    sample_input = sample_input.unsqueeze(0)
 
-    # Print the shapes of the outputs
-    print("Class Output Shape:", classOutput.shape)  # Expected: (1, 20, 300)
-    print("Bounding Box Output Shape:", bboxOutput.shape)  # Expected: (1, 20, 4)
+    output = model(sample_input)
 
-
-
-
+    print(output)
