@@ -1,6 +1,7 @@
 from torch.utils.data import DataLoader
 from torch import nn
 import torch
+from tqdm import tqdm
 from plot import Plot
 class Trainer():
     def __init__(self, testDataloader: DataLoader, trainDataloader: DataLoader, model: nn.Module, criterionBbox, optimizer: torch.optim.Adam, epochs: int, device, tokienizer):
@@ -20,7 +21,7 @@ class Trainer():
         self.start()
 
     def start(self):
-        for epoch in range(self.epochs):
+        for epoch in tqdm(range(self.epochs)):
             self.train()
             self.currentEpoch = epoch
 
@@ -40,9 +41,10 @@ class Trainer():
             self.optimizer.step()
 
         print("loss: ",loss.item())
-        save_path = f"images/epoch_{self.currentEpoch}_batch_{self.currentEpoch}.png"
-        plot = Plot(self.tokienizer, save_path)
-        plot.renderPrediction(image.cpu(), selectedPreds.cpu().tolist(), save_path)
+        if self.currentEpoch % 10 == 0:
+            save_path = f"images/epoch_{self.currentEpoch}_batch_{self.currentEpoch}.png"
+            plot = Plot(self.tokienizer, save_path)
+            plot.renderPrediction(image.cpu(), selectedPreds.cpu().tolist(), save_path)
     
     def extractDatapoints(self, dataPoints):
         extractedDatapoints = []
