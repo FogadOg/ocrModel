@@ -4,7 +4,18 @@ import torch
 from tqdm import tqdm
 from plot import Plot
 class Trainer():
-    def __init__(self, testDataloader: DataLoader, trainDataloader: DataLoader, model: nn.Module, criterionBbox, optimizer: torch.optim.Adam, epochs: int, device, tokienizer):
+    def __init__(self, 
+                 testDataloader: DataLoader, 
+                 trainDataloader: DataLoader, 
+                 model: nn.Module, 
+                 criterionBbox, 
+                 optimizer: torch.optim.Adam, 
+                 epochs: int, 
+                 device, 
+                 tokienizer,                 
+                saveModelPath: str = None,
+                loadModelPath: str = None
+        ):
         self.testDataloader = testDataloader
         self.trainDataloader = trainDataloader
         self.model = model
@@ -18,6 +29,12 @@ class Trainer():
 
         self.tokienizer = tokienizer
 
+        self.saveModelPath = saveModelPath
+        self.saveModelPath = saveModelPath
+
+        print(f"model parameters: {self.parametersCount(model):,}")
+        if loadModelPath != None:
+            self.loadModel(model, loadModelPath)
         self.start()
 
     def start(self):
@@ -40,7 +57,10 @@ class Trainer():
 
             self.optimizer.step()
 
+        if self.saveModelPath != None:
+            self.saveModel()
         print("loss: ",loss.item())
+        
         if self.currentEpoch % 10 == 0:
             save_path = f"images/epoch_{self.currentEpoch}_batch_{self.currentEpoch}.png"
             plot = Plot(self.tokienizer, save_path)
@@ -71,4 +91,15 @@ class Trainer():
         bboxLoss = self.criterionBbox(selectedPreds, targetBboxOutput)
 
         return bboxLoss, selectedPreds
+    
+    def saveModel(self):
+        torch.save(self.model.state_dict(), f"{self.saveModelPath}.pth")
   
+    def loadModel(self, model, loadModel):
+        try:
+            model.load_state_dict(torch.load(f"{loadModel}.pth"))
+        except Exception as e:
+            print("ERROR: ",e)
+
+    def parametersCount(self, model: torch.nn.Module):
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
