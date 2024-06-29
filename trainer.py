@@ -42,44 +42,50 @@ class Trainer():
             self.train()
             self.currentEpoch = epoch
 
+
     def train(self):
         for image, targetData in self.trainDataloader:
+            image = image.to(self.device)
+            
+            # Convert targetData to a tensor
+            targetDataTensor = self.extractDatapoints(targetData).to(self.device)
+
             self.optimizer.zero_grad()
             predBboxOutput = self.model(image)
 
-            targetBboxOutput = self.extractDatapoints(targetData)
-
-            loss, selectedPreds = self.getLoss(predBboxOutput, targetBboxOutput)
-            
-
+            loss, selectedPreds = self.getLoss(predBboxOutput, targetDataTensor)
 
             loss.backward()
-
             self.optimizer.step()
 
-        if self.saveModelPath != None:
+        if self.saveModelPath is not None:
             self.saveModel()
-        print("loss: ",loss.item())
-        
+        print("loss: ", loss.item())
+
         if self.currentEpoch % 10 == 0:
             save_path = f"images/epoch_{self.currentEpoch}_batch_{self.currentEpoch}.png"
             plot = Plot(self.tokienizer, save_path)
             plot.renderPrediction(image.cpu(), selectedPreds.cpu().tolist(), save_path)
-    
+
+
+
     def extractDatapoints(self, dataPoints):
         extractedDatapoints = []
 
         for dataPoint in dataPoints:
             extractedDataPoint = []
 
-            extractedDataPoint.append(dataPoint["x"])
-            extractedDataPoint.append(dataPoint["y"])
-            extractedDataPoint.append(dataPoint["width"])
-            extractedDataPoint.append(dataPoint["height"])
-            extractedDataPoint.append(dataPoint["token"])
+            # Ensure each value is converted to the appropriate numeric type
+            extractedDataPoint.append(float(dataPoint["x"]))
+            extractedDataPoint.append(float(dataPoint["y"]))
+            extractedDataPoint.append(float(dataPoint["width"]))
+            extractedDataPoint.append(float(dataPoint["height"]))
+            extractedDataPoint.append(float(dataPoint["token"]))  # Assuming token is also numeric
 
             extractedDatapoints.append(extractedDataPoint)
+            
         return torch.tensor(extractedDatapoints)
+
 
 
     def getLoss(self, predBboxOutput, targetBboxOutput):

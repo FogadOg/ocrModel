@@ -54,7 +54,7 @@ class Main():
         vocabSize = len(self.dataset.tokenizer)
         model = Model(vocabSize, 30)
 
-        return model
+        return model.to(self.device)
 
     def splitDataset(self):        
         dataloader = Dataloader(self.dataset, .8)
