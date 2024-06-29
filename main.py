@@ -4,25 +4,61 @@ from trainer import Trainer
 from dataloader import Dataloader
 from torch import nn
 from model.model import Model
-
-device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
-
-dataset = Dataset('SceneTrialTest/words.xml')
-vocabSize = len(dataset.tokenizer)
-
-model = Model(vocabSize, 30)
-
-dataloader = Dataloader(dataset, .8)
-trainDataloader, testDataloader = dataloader.splitDataset()
+from torch import nn
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
-optimizer = torch.optim.Adam(model.parameters(), lr=.001)
+class Main():
+    def __init__(self, 
+                EPOCHS: int, 
+                patience: int = None,
+                saveModelPath: str = None,
+                loadModelPath: str = None
+            ):
+        self.device = self.setUpDevice()
 
-# from torch.optim.lr_scheduler import ReduceLROnPlateau
-# scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=20, verbose=True)
+        self.dataset = Dataset('SceneTrialTest/words.xml')
 
-criterionBbox = nn.SmoothL1Loss()
+        self.model = self.getModel()
+
+        self.trainDataloader, self.testDataloader =  self.splitDataset()
+
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=.0001)
+
+        if patience != None:
+            ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=patience, verbose=True)
+
+        self.criterionBbox = nn.SmoothL1Loss()
+
+        
+        Trainer(
+            self.testDataloader, 
+            self.trainDataloader, 
+            self.model, 
+            self.criterionBbox, 
+            self.optimizer, 
+            EPOCHS, 
+            self.device, 
+            self.dataset.tokenizer,
+            saveModelPath, 
+            loadModelPath
+        )
+        
+
+    def setUpDevice(self):
+        device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        print(device)
+        return device
+
+    def getModel(self):
+        vocabSize = len(self.dataset.tokenizer)
+        model = Model(vocabSize, 30)
+
+        return model.to(self.device)
+
+    def splitDataset(self):        
+        dataloader = Dataloader(self.dataset, .8)
+        return dataloader.splitDataset()
 
 
-Trainer(trainDataloader, testDataloader, model, criterionBbox, optimizer, 6000, device, dataset.tokenizer)
+Main(1000, saveModelPath = "model")
