@@ -19,13 +19,21 @@ class Model(nn.Module):
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
+            nn.Conv2d(16, 16, 3, padding=1),
+            nn.MaxPool2d(2, 2),
+            nn.ReLU(),
+
+            nn.Conv2d(16, 16, 3, padding=1),
+            nn.MaxPool2d(2, 2),
+            nn.ReLU(),
+
             nn.Conv2d(16, 32, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
         )
 
-        self.fcBbox = nn.Linear(32 * 40 * 30, self.maxBoxes * 4)
-        self.fcClass = nn.Linear(32 * 40 * 30, self.maxBoxes * numClasses)
+        self.fcBbox = nn.Linear(2240, self.maxBoxes * 4)
+        self.fcClass = nn.Linear(2240, self.maxBoxes * numClasses)
 
     def forward(self, x: torch.tensor):
         x = x.unsqueeze(0)
