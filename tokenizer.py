@@ -4,7 +4,7 @@ parentDir = os.path.abspath(os.path.join(currentDir, '../../'))
 sys.path.append(parentDir)
 
 import torch
-from tokinizerUtil import TokenizerDatasetUtils
+from tokenizerUtil import TokenizerDatasetUtils
 
 class Tokenizer(TokenizerDatasetUtils):
   def __init__(self, maxDictLen=100000, maxSquenceLength=700):
@@ -16,13 +16,16 @@ class Tokenizer(TokenizerDatasetUtils):
 
     sentanceList = sentance.split(" ")
     for word in sentanceList:
-      if len(encodedSentance)>=self.maxSquenceLength:
+      if len(encodedSentance) > self.maxSquenceLength:
         break
 
       if word in self.tokinizerDict.keys():
         encodedSentance.append(self.tokinizerDict[word])
-      elif self.maxDictLen>len(self.tokinizerDict):
-        self.tokinizerDict[word]=len(self.tokinizerDict)
+
+      elif self.maxDictLen > len(self.tokinizerDict):
+        self.tokinizerDict[word] = len(self.tokinizerDict)
+        encodedSentance.append(self.tokinizerDict[word])
+        
       else:
         encodedSentance.append(self.tokinizerDict["UNK"])
 
