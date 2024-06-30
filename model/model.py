@@ -2,32 +2,32 @@ import torch
 import torch.nn as nn
 
 class Model(nn.Module):
-    def __init__(self, numClasses, maxBoxes=20):
+    def __init__(self, numClasses, hiddenSize, maxBoxes=20):
         super(Model, self).__init__()
         self.numClasses = numClasses
         self.maxBoxes = maxBoxes
         self.sequential = nn.Sequential(
-            nn.Conv2d(3, 16, 3, padding=1),
+            nn.Conv2d(3, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 16, 3, padding=1),
+            nn.Conv2d(hiddenSize, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 16, 3, padding=1),
+            nn.Conv2d(hiddenSize, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 16, 3, padding=1),
+            nn.Conv2d(hiddenSize, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 16, 3, padding=1),
+            nn.Conv2d(hiddenSize, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 32, 3, padding=1),
+            nn.Conv2d(hiddenSize, 32, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
         )
