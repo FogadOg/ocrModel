@@ -86,6 +86,11 @@ class Trainer():
             
         return torch.tensor(extractedDatapoints)
 
+    def getGradient(self):
+        print("Gradients:")
+        for name, param in self.model.named_parameters():
+            if param.grad is not None:
+                print(f"{name} gradient:\n{param.grad.shape}")
 
 
     def getLoss(self, predBboxOutput, targetBboxOutput):
