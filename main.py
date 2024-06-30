@@ -52,7 +52,7 @@ class Main():
 
     def getModel(self):
         vocabSize = len(self.dataset.tokenizer)
-        model = Model(vocabSize, 30)
+        model = Model(vocabSize, 32, 30)
 
         return model.to(self.device)
 
@@ -60,5 +60,5 @@ class Main():
         dataloader = Dataloader(self.dataset, .8)
         return dataloader.splitDataset()
 
-
-Main(1000, saveModelPath = "model")
+if __name__ == "__main__":
+    Main(1000, saveModelPath = "model")
