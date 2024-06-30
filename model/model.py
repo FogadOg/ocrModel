@@ -2,38 +2,46 @@ import torch
 import torch.nn as nn
 
 class Model(nn.Module):
-    def __init__(self, numClasses, maxBoxes=20):
+    def __init__(self, numClasses, hiddenSize, maxBoxes=20):
         super(Model, self).__init__()
         self.numClasses = numClasses
         self.maxBoxes = maxBoxes
         self.sequential = nn.Sequential(
-            nn.Conv2d(3, 16, 3, padding=1),
+            nn.Conv2d(3, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 16, 3, padding=1),
+            nn.Conv2d(hiddenSize, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 16, 3, padding=1),
+            nn.Conv2d(hiddenSize, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 16, 3, padding=1),
+            nn.Conv2d(hiddenSize, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 16, 3, padding=1),
+            nn.Conv2d(hiddenSize, hiddenSize, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
 
-            nn.Conv2d(16, 32, 3, padding=1),
+            nn.Conv2d(hiddenSize, 32, 3, padding=1),
             nn.MaxPool2d(2, 2),
             nn.ReLU(),
         )
+        self.fcClass = nn.Sequential(
+            nn.Linear(2240, hiddenSize),
+            nn.ReLU(),
+            nn.Linear(hiddenSize, hiddenSize),
+            nn.ReLU(),
+            nn.Linear(hiddenSize, hiddenSize),
+            nn.ReLU(),
+            nn.Linear(hiddenSize, self.maxBoxes * numClasses)
+        )
 
         self.fcBbox = nn.Linear(2240, self.maxBoxes * 4)
-        self.fcClass = nn.Linear(2240, self.maxBoxes * numClasses)
 
     def forward(self, x: torch.tensor):
         x = x.unsqueeze(0)
